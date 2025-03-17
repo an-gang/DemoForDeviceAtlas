@@ -1,0 +1,23 @@
+server:
+  address: 127.0.0.1 # allow localhost to access only
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${application.database-server}:3306/${application.database-name}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=Europe/Dublin
+    username: ${application.database-username}
+    password: ${application.database-password}
+    hikari:
+      keepalive-time: 3000000 # enable this will send a simple select to database every 5min to keep connect alive forever
+
+mybatis:
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  typeAliasesPackage: com.gangan.demofordeviceatlas.entity
+  configLocation: classpath:mybatis-config.xml
+
+application:
+  database-server: localhost
+  database-name: DemoForDeviceAtlas
+  database-username: root
+  database-password: ""

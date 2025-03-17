@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gangan.demofordeviceatlas.mapper.DeviceInfoMapper">
+
+    <resultMap type="DeviceInfo" id="DeviceInfoResult">
+        <result property="id" column="id"/>
+        <result property="primaryHardwareType" column="primary_hardware_type"/>
+        <result property="vendor" column="vendor"/>
+        <result property="model" column="model"/>
+        <result property="osName" column="os_name"/>
+        <result property="osVersion" column="os_version"/>
+        <result property="browserName" column="browser_name"/>
+        <result property="browserRenderingEngine" column="browser_rendering_engine"/>
+    </resultMap>
+
+    <insert id="insertDeviceInfo" parameterType="DeviceInfo" keyProperty="id">
+        INSERT INTO device_info (primary_hardware_type,
+                                 vendor,
+                                 model,
+                                 os_name,
+                                 os_version,
+                                 browser_name,
+                                 browser_rendering_engine)
+        VALUES (#{primaryHardwareType},
+                #{vendor},
+                #{model},
+                #{osName},
+                #{osVersion},
+                #{browserName},
+                #{browserRenderingEngine})
+    </insert>
+
+    <delete id="truncateTable">
+        TRUNCATE TABLE device_info;
+    </delete>
+
+    <select id="selectDeviceInfo" resultMap="DeviceInfoResult">
+        SELECT * FROM device_info
+        <where>
+            <if test="onlyTablet != null and onlyTablet">
+                AND primary_hardware_type = 'Tablet'
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                id LIKE CONCAT('%', #{keyword}, '%')
+                OR primary_hardware_type LIKE CONCAT('%', #{keyword}, '%')
+                OR vendor LIKE CONCAT('%', #{keyword}, '%')
+                OR model LIKE CONCAT('%', #{keyword}, '%')
+                OR os_name LIKE CONCAT('%', #{keyword}, '%')
+                OR os_version LIKE CONCAT('%', #{keyword}, '%')
+                OR browser_name LIKE CONCAT('%', #{keyword}, '%')
+                OR browser_rendering_engine LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY
+        CAST(SUBSTRING_INDEX(os_version, '.', 1) AS UNSIGNED),
+        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(os_version, '.', -2), '.', 1) AS UNSIGNED),
+        CAST(SUBSTRING_INDEX(os_version, '.', -1) AS UNSIGNED)
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="selectCount">
+        SELECT count(*) FROM device_info
+        <where>
+            <if test="onlyTablet != null and onlyTablet">
+                AND primary_hardware_type = 'Tablet'
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                primary_hardware_type LIKE CONCAT('%', #{keyword}, '%')
+                OR vendor LIKE CONCAT('%', #{keyword}, '%')
+                OR model LIKE CONCAT('%', #{keyword}, '%')
+                OR os_name LIKE CONCAT('%', #{keyword}, '%')
+                OR os_version LIKE CONCAT('%', #{keyword}, '%')
+                OR browser_name LIKE CONCAT('%', #{keyword}, '%')
+                OR browser_rendering_engine LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+
+</mapper>
